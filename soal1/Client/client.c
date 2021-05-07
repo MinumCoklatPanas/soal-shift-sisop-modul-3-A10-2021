@@ -123,8 +123,8 @@ int main(int argc, char const *argv[])
                     exit(EXIT_FAILURE);
                 }
                 char message[110];
-                int tmp;
-                if (tmp = recv(sock,(void*)&message,sizeof(message),0) < 0)
+                int rcvMsg;
+                if (rcvMsg = recv(sock,(void*)&message,sizeof(message),0) < 0)
                 {
                     perror("Register Failed");
                     exit(EXIT_FAILURE);
