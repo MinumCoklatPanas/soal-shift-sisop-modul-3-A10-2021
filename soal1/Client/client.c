@@ -131,6 +131,27 @@ int main(int argc, char const *argv[])
                 }
                 printf("%s\n",message);
             }
+            else
+            if (command == DOWNLOAD)
+            {
+                printf("Input file name:");
+                char downloadFileName[510];
+                scanf("%s",downloadFileName);
+                int sendDwnld;
+                if (sendDwnld = send(sock,(void*)&downloadFileName,sizeof(downloadFileName),0) < 0)
+                {
+                    perror("Send add");
+                    exit(EXIT_FAILURE);
+                }
+                char message[110];
+                int rcvMsg;
+                if (rcvMsg = recv(sock,(void*)&message,sizeof(message),0) < 0)
+                {
+                    perror("Register Failed");
+                    exit(EXIT_FAILURE);
+                }
+                printf("%s\n",message);
+            }
         }
     }
 	return 0;

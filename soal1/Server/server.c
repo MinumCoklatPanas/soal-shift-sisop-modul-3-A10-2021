@@ -250,6 +250,65 @@ int main(int argc, char const *argv[])
             fclose(from);
             fclose(to);
         }
+        if (command == DOWNLOAD)
+        {
+            char dwnldFileName[510];
+            int rcvDwnld;
+            if (rcvDwnld = recv(new_socket,(void*)&dwnldFileName,4096,0) < 0)
+            {
+                perror("recv");
+                exit(EXIT_FAILURE);
+            }
+            FILE* tsv;
+            tsv = fopen("files.tsv","r");
+            book rd;
+            int found = 0;
+            while (fscanf(tsv,"%s %d %s",rd.publisher,&rd.tahun,rd.filePath) != EOF)
+            {
+                char bfr[510];
+                strcpy(bfr,rd.filePath);
+                char* fileName = strrchr(bfr,'/');
+                memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                if (strcmp(fileName,dwnldFileName) == 0)
+                {
+                    found = 1;
+                    break;
+                }
+            }
+            char dwnldMsg[510];
+            if (!found)
+            {
+                strcpy(dwnldMsg,"Book Not Found!");
+                continue;
+            }
+            else
+                strcpy(dwnldMsg,"Book Downloaded!");
+            int dwnldSnd;
+            if (dwnldSnd = send(new_socket, (void*)&dwnldMsg,strlen(dwnldMsg),0) < 0)
+            {
+                perror("Download Book");
+                exit(EXIT_FAILURE);
+            }
+            char srcDir[510];
+            strcpy(srcDir,"/home/pan/sisop/soal-shift-sisop-modul-3-A10-2021/files/");
+            strcat(srcDir,dwnldFileName);
+            char destDir[510];
+            strcpy(destDir,"/home/pan/sisop/soal-shift-sisop-modul-3-A10-2021/");
+            strcat(destDir,dwnldFileName);
+            FILE* from;
+            from = fopen(srcDir,"r");
+            FILE* to;
+            to = fopen(destDir,"w");
+            printf("%s -> %s\n",srcDir,destDir);
+            char trfBuf[BUFSIZ];
+            size_t size;
+            while (size = fread(trfBuf, 1, BUFSIZ, from)) 
+            {
+                fwrite(trfBuf, 1, size, to);
+            }
+            fclose(from);
+            fclose(to);
+        }
     }
 	return 0;
 }
