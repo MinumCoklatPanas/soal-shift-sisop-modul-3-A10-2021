@@ -224,20 +224,31 @@ int main(int argc, char const *argv[])
                 perror("Add book");
                 exit(EXIT_FAILURE);
             }
+            char buff[510];
+            strcpy(buff,dt.filePath);
+            char* fileName = strrchr(buff,'/');
             FILE* f;
             f = fopen("files.tsv","a");
             fprintf(f,"%s\t%d\t%s\n",dt.publisher,dt.tahun,dt.filePath);
             fclose(f);
-            char buff[510];
-            strcpy(buff,dt.filePath);
-            char* fileName = strrchr(buff,'/');
             printf("%s\n",fileName);
             memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
             char dir[510];
             strcpy(dir,"/home/pan/sisop/soal-shift-sisop-modul-3-A10-2021/files/");
             strcat(dir,fileName);
             printf("%s -> %s\n",dt.filePath,dir);
-            rename(dt.filePath,dir);
+            FILE* from;
+            from = fopen(dt.filePath,"r");
+            FILE* to;
+            to = fopen(dir,"w");
+            char trfBuf[BUFSIZ];
+            size_t size;
+            while (size = fread(trfBuf, 1, BUFSIZ, from)) 
+            {
+                fwrite(trfBuf, 1, size, to);
+            }
+            fclose(from);
+            fclose(to);
         }
     }
 	return 0;
