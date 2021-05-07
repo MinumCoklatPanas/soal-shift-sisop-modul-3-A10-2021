@@ -164,6 +164,44 @@ int main(int argc, char const *argv[])
                     perror("Send Delete");
                     exit(EXIT_FAILURE);
                 }
+                char message[110];
+                int rcvMsg;
+                if (rcvMsg = recv(sock,(void*)&message,sizeof(message),0) < 0)
+                {
+                    perror("Download Failed");
+                    exit(EXIT_FAILURE);
+                }
+                printf("%s\n",message);
+            }
+            else
+            if (command == SEE)
+            {
+                book simpan[510];
+                int seeMsg;
+                if (seeMsg = recv(sock,(void*)&simpan,sizeof(simpan),0) < 0)
+                {
+                    perror("See Failed");
+                    exit(EXIT_FAILURE);
+                }
+                for (int i = 0 ; i < 510 ; i++)
+                {
+                    if (simpan[i].tahun == 0) break;
+                    book rd = simpan[i];
+                    char bfr[510];
+                    strcpy(bfr,rd.filePath);
+                    char* fileName = strrchr(bfr,'/');
+                    memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                    printf("Nama: %s\n",fileName);
+                    printf("Publisher: %s\n",simpan[i].publisher);
+                    printf("Tahun Publishing: %d\n",simpan[i].tahun);
+                    char buff2[510];
+                    strcpy(buff2,fileName);
+                    char* extension = strrchr(buff2,'.');
+                    memmove(&extension[0],&extension[1],strlen(extension) - 0);
+                    printf("Ekstensi File: %s\n",extension);
+                    printf("Filepath: %s\n",simpan[i].filePath);
+                    printf("\n");
+                }
             }
         }
     }

@@ -380,6 +380,30 @@ int main(int argc, char const *argv[])
             }
             fclose(overwrite);
         }
+        if (command == SEE)
+        {
+            book simpan[510];
+            book rd;
+            int ix;
+            FILE* tsv;
+            tsv = fopen("files.tsv","r");
+            int found = 0;
+            while (fscanf(tsv,"%s %d %s",rd.publisher,&rd.tahun,rd.filePath) != EOF)
+            {
+                char bfr[510];
+                strcpy(bfr,rd.filePath);
+                char* fileName = strrchr(bfr,'/');
+                memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                simpan[ix++] = rd;
+            }
+            fclose(tsv);
+            int seeSnd;
+            if (seeSnd = send(new_socket, (void*)&simpan,sizeof(simpan),0) < 0)
+            {
+                perror("See");
+                exit(EXIT_FAILURE);
+            }
+        }
     }
 	return 0;
 }
