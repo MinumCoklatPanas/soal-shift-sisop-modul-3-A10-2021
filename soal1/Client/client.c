@@ -203,6 +203,36 @@ int main(int argc, char const *argv[])
                     printf("\n");
                 }
             }
+            else
+            if (command == FIND)
+            {
+                printf("Input Pattern:");
+                char pattern[510];
+                scanf("%s",pattern);
+                int sendFnd;
+                if (sendFnd = send(sock,(void*)&pattern,sizeof(pattern),0) < 0)
+                {
+                    perror("Send Find");
+                    exit(EXIT_FAILURE);
+                }
+                book simpan[510];
+                int fndMsg;
+                if (fndMsg = recv(sock,(void*)&simpan,sizeof(simpan),0) < 0)
+                {
+                    perror("Find Failed");
+                    exit(EXIT_FAILURE);
+                }
+                for (int i = 0 ; i < 510 ; i++)
+                {
+                    if (simpan[i].tahun == 0) break;
+                    book rd = simpan[i];
+                    char bfr[510];
+                    strcpy(bfr,rd.filePath);
+                    char* fileName = strrchr(bfr,'/');
+                    memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                    printf("%s\n",fileName);
+                }
+            }
         }
     }
 	return 0;

@@ -404,6 +404,40 @@ int main(int argc, char const *argv[])
                 exit(EXIT_FAILURE);
             }
         }
+        if (command == FIND)
+        {
+            char pattern[510];
+            int rcvFind;
+            if (rcvFind = recv(new_socket,(void*)&pattern,4096,0) < 0)
+            {
+                perror("recv Find");
+                exit(EXIT_FAILURE);
+            }
+            book simpan[510];
+            book rd;
+            int ix;
+            FILE* tsv;
+            tsv = fopen("files.tsv","r");
+            int found = 0;
+            while (fscanf(tsv,"%s %d %s",rd.publisher,&rd.tahun,rd.filePath) != EOF)
+            {
+                char bfr[510];
+                strcpy(bfr,rd.filePath);
+                char* fileName = strrchr(bfr,'/');
+                memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                if (strstr(fileName,pattern) != NULL)
+                {
+                    simpan[ix++] = rd;
+                }
+            }
+            fclose(tsv);
+            int fndSnd;
+            if (fndSnd = send(new_socket, (void*)&simpan,sizeof(simpan),0) < 0)
+            {
+                perror("Find");
+                exit(EXIT_FAILURE);
+            }
+        }
     }
 	return 0;
 }
