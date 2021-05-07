@@ -126,7 +126,7 @@ int main(int argc, char const *argv[])
                 int rcvMsg;
                 if (rcvMsg = recv(sock,(void*)&message,sizeof(message),0) < 0)
                 {
-                    perror("Register Failed");
+                    perror("Add Failed");
                     exit(EXIT_FAILURE);
                 }
                 printf("%s\n",message);
@@ -140,17 +140,30 @@ int main(int argc, char const *argv[])
                 int sendDwnld;
                 if (sendDwnld = send(sock,(void*)&downloadFileName,sizeof(downloadFileName),0) < 0)
                 {
-                    perror("Send add");
+                    perror("Send Download");
                     exit(EXIT_FAILURE);
                 }
                 char message[110];
                 int rcvMsg;
                 if (rcvMsg = recv(sock,(void*)&message,sizeof(message),0) < 0)
                 {
-                    perror("Register Failed");
+                    perror("Download Failed");
                     exit(EXIT_FAILURE);
                 }
                 printf("%s\n",message);
+            }
+            else
+            if (command == DELETE)
+            {
+                printf("Input File Name:");
+                char deleteFileName[510];
+                scanf("%s",deleteFileName);
+                int sendDel;
+                if (sendDel = send(sock,(void*)&deleteFileName,sizeof(deleteFileName),0) < 0)
+                {
+                    perror("Send Delete");
+                    exit(EXIT_FAILURE);
+                }
             }
         }
     }

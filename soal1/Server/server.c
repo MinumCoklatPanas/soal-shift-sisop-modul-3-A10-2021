@@ -74,130 +74,136 @@ int main(int argc, char const *argv[])
         exit(EXIT_FAILURE);
     }
     
+    int logged_in = 0;
+
     while (1)
     {
-        creds login;
-        int tmp;
-        if (tmp = recv(new_socket,(void*)&login,4096,0) < 0)
+        if (!logged_in)
         {
-            perror("recv");
-            exit(EXIT_FAILURE);
-        }
-        if (login.status == REGISTER)
-        {
-            char message[110];
-            FILE* f;
-            f = fopen("akun.txt","a+");
-            char buffer[1010];
-            int ada = 0;
-            while (fscanf(f,"%s",buffer) != EOF)
+            creds login;
+            int tmp;
+            if (tmp = recv(new_socket,(void*)&login,4096,0) < 0)
             {
-                // puts("MASUK");
-                printf("%s\n",buffer);
-                const char s[2] = ":";
-                char *token;
-                
-                /* get the first token */
-                token = strtok(buffer, s);
-                char uname[1010];
-                char pw[1010];
-                strcpy(uname,token);
-                
-                /* walk through other tokens */
-                while( token != NULL ) {
-                    printf( " %s\n", token );
-                    token = strtok(NULL, s);
-                    if (strlen(pw) == 0)
-                        strcpy(pw,token);
-                }
-                if (strcmp(uname,login.id) == 0)
-                {
-                    ada = 1;
-                    break;
-                }
-            }   
-            fclose(f);
-            if (ada == 1)
-            {
-                strcpy(message,"User Already Exist!");
-                if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
-                {
-                    perror("Register");
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else
-            {
-                f = fopen("akun.txt","a");
-                strcpy(message,"User Registered!");
-                if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
-                {
-                    perror("Register");
-                    exit(EXIT_FAILURE);
-                }
-                fprintf(f,"%s:%s\n",login.id,login.password);
-                fclose(f);
-            }
-            continue;
-        }
-        else
-        if (login.status == LOGIN)
-        {
-            char message[110];
-            FILE* f;
-            f = fopen("akun.txt","a+");
-            char buffer[1010];
-            int ada = 0;
-            int benar = 0;
-            while (fscanf(f,"%s",buffer) != EOF)
-            {
-                printf("%s\n",buffer);
-                const char s[2] = ":";
-                char *token;
-                
-                /* get the first token */
-                token = strtok(buffer, s);
-                char uname[1010];
-                char pw[1010];
-                strcpy(uname,token);
-                strcpy(pw,"");
-                
-                /* walk through other tokens */
-                while( token != NULL ) {
-                    printf( " %s %d\n", token,(int)strlen(pw));
-                    token = strtok(NULL, s);
-                    if (strlen(pw) == 0)
-                        strcpy(pw,token);
-                }
-                if (strcmp(uname,login.id) == 0)
-                {
-                    ada = 1;
-                    printf("%s\n",pw);
-                    if (strcmp(pw,login.password) == 0)
-                        benar = 1;
-                    break;
-                }
-            }
-            fclose(f);
-            if (!ada)
-            {
-                strcpy(message,"User Not Found!");
-                continue;
-            }
-            else
-            if (!benar)
-            {
-                strcpy(message,"Password Incorrect!");
-                continue;
-            }
-            else
-            {
-                strcpy(message,"Login Success!");
-            }
-            if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
-            {
-                perror("Register");
+                perror("recv");
                 exit(EXIT_FAILURE);
+            }
+            if (login.status == REGISTER)
+            {
+                char message[110];
+                FILE* f;
+                f = fopen("akun.txt","a+");
+                char buffer[1010];
+                int ada = 0;
+                while (fscanf(f,"%s",buffer) != EOF)
+                {
+                    // puts("MASUK");
+                    printf("%s\n",buffer);
+                    const char s[2] = ":";
+                    char *token;
+                    
+                    /* get the first token */
+                    token = strtok(buffer, s);
+                    char uname[1010];
+                    char pw[1010];
+                    strcpy(uname,token);
+                    
+                    /* walk through other tokens */
+                    while( token != NULL ) {
+                        printf( " %s\n", token );
+                        token = strtok(NULL, s);
+                        if (strlen(pw) == 0)
+                            strcpy(pw,token);
+                    }
+                    if (strcmp(uname,login.id) == 0)
+                    {
+                        ada = 1;
+                        break;
+                    }
+                }   
+                fclose(f);
+                if (ada == 1)
+                {
+                    strcpy(message,"User Already Exist!");
+                    if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
+                    {
+                        perror("Register");
+                        exit(EXIT_FAILURE);
+                    }
+                }
+                else
+                {
+                    f = fopen("akun.txt","a");
+                    strcpy(message,"User Registered!");
+                    if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
+                    {
+                        perror("Register");
+                        exit(EXIT_FAILURE);
+                    }
+                    fprintf(f,"%s:%s\n",login.id,login.password);
+                    fclose(f);
+                }
+                continue;
+            }
+            else
+            if (login.status == LOGIN)
+            {
+                char message[110];
+                FILE* f;
+                f = fopen("akun.txt","a+");
+                char buffer[1010];
+                int ada = 0;
+                int benar = 0;
+                while (fscanf(f,"%s",buffer) != EOF)
+                {
+                    printf("%s\n",buffer);
+                    const char s[2] = ":";
+                    char *token;
+                    
+                    /* get the first token */
+                    token = strtok(buffer, s);
+                    char uname[1010];
+                    char pw[1010];
+                    strcpy(uname,token);
+                    strcpy(pw,"");
+                    
+                    /* walk through other tokens */
+                    while( token != NULL ) {
+                        printf( " %s %d\n", token,(int)strlen(pw));
+                        token = strtok(NULL, s);
+                        if (strlen(pw) == 0)
+                            strcpy(pw,token);
+                    }
+                    if (strcmp(uname,login.id) == 0)
+                    {
+                        ada = 1;
+                        printf("%s\n",pw);
+                        if (strcmp(pw,login.password) == 0)
+                            benar = 1;
+                        break;
+                    }
+                }
+                fclose(f);
+                if (!ada)
+                {
+                    strcpy(message,"User Not Found!");
+                    continue;
+                }
+                else
+                if (!benar)
+                {
+                    strcpy(message,"Password Incorrect!");
+                    continue;
+                }
+                else
+                {
+                    strcpy(message,"Login Success!");
+                }
+                if (tmp = send(new_socket, (void*)&message,strlen(message),0) < 0)
+                {
+                    perror("Register");
+                    exit(EXIT_FAILURE);
+                }
+                logged_in = 1;
             }
         }
         int command;
@@ -275,6 +281,7 @@ int main(int argc, char const *argv[])
                     break;
                 }
             }
+            fclose(tsv);
             char dwnldMsg[510];
             if (!found)
             {
@@ -308,6 +315,70 @@ int main(int argc, char const *argv[])
             }
             fclose(from);
             fclose(to);
+        }
+        if (command == DELETE)
+        {
+            char delFileName[510];
+            int rcvDel;
+            if (rcvDel = recv(new_socket,(void*)&delFileName,4096,0) < 0)
+            {
+                perror("recv");
+                exit(EXIT_FAILURE);
+            }
+            book simpan[510];
+            book rd;
+            int ix;
+            FILE* tsv;
+            tsv = fopen("files.tsv","r");
+            int found = 0;
+            while (fscanf(tsv,"%s %d %s",rd.publisher,&rd.tahun,rd.filePath) != EOF)
+            {
+                char bfr[510];
+                strcpy(bfr,rd.filePath);
+                char* fileName = strrchr(bfr,'/');
+                memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                if (strcmp(fileName,delFileName) == 0)
+                {
+                    found = 1;
+                    break;
+                }
+                simpan[ix++] = rd;
+            }
+            fclose(tsv);
+            char delMsg[510];
+            if (!found)
+            {
+                strcpy(delMsg,"Book Not Found!");
+                continue;
+            }
+            else
+                strcpy(delMsg,"Book Deleted!");
+            int delSnd;
+            if (delSnd = send(new_socket, (void*)&delMsg,strlen(delMsg),0) < 0)
+            {
+                perror("Download Book");
+                exit(EXIT_FAILURE);
+            }
+            char srcDir[510];
+            strcpy(srcDir,"/home/pan/sisop/soal-shift-sisop-modul-3-A10-2021/files/");
+            strcat(srcDir,delFileName);
+            char destDir[510];
+            strcpy(destDir,"/home/pan/sisop/soal-shift-sisop-modul-3-A10-2021/files/old-");
+            strcat(destDir,delFileName);
+            rename(srcDir,destDir);
+            FILE* overwrite;
+            overwrite = fopen("files.tsv","w");
+            for (int i = 0 ; i < ix ; i++)
+            {
+                char bfr[510];
+                strcpy(bfr,simpan[i].filePath);
+                char* fileName = strrchr(bfr,'/');
+                memmove(&fileName[0],&fileName[1],strlen(fileName) - 0);
+                if (strcmp(fileName,delFileName) == 0) continue;
+                // puts("masuk");
+                fprintf(overwrite,"%s\t%d\t%s\n",simpan[i].publisher,simpan[i].tahun,simpan[i].filePath);
+            }
+            fclose(overwrite);
         }
     }
 	return 0;
