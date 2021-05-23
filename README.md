@@ -434,8 +434,6 @@ if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
         }
 ```
 
-Output:
-
 ##### E. Client dapat menghapus file yang tersimpan di Server, dengan cara me-rename menjadi 'old-NameFile.ekstensi'. (Command Client : delete)
 - Menggunakan operasi-operasi dasar dari string untuk memproses path file.
 - Client memasukkan nama file yang akan di delete, bukan benar-benar dihapus, tetapi me-rename file nya.
@@ -674,58 +672,212 @@ Output:
 ```
 
 ##### H. Membuat suatu log untuk server yang bernama running.log
+#### Kendala
+- Membuat socket Client dengan Server
+- Terkadang Client dan Server tidak sinkron
 
 ## Soal 2
 
 Crypto (kamu) adalah teman Loba. Suatu pagi, Crypto melihat Loba yang sedang kewalahan mengerjakan tugas dari bosnya. Karena Crypto adalah orang yang sangat menyukai tantangan, dia ingin membantu Loba mengerjakan tugasnya.
 
 #### Solusi
-
-Perintah fork dan execv dijadikan dalam satu fungsi bernama "Run" sehingga lebih memudahkan dalam penulisan code
-
-```c
-```
-
 ##### A. Membuat program perkalian Matriks (4x3 dengan 3x6) dan menampilkan hasilnya. Matriks nantinya akan berisi angka 1-20 (tidak perlu dibuat filter angka)
 - User melakukan penginputan manual ke Matriks yang ukurannya telah ditentukan (Matriks 1 dan 2).
 - Melakukan perkalian antar dua matriks tersebut.
 - Pada program ini, terdapat 3 thread yang digunakan, yaitu untuk menampilkan Matriks 1 dan 2 serta fungsi perkalian matriks tersebut.
+
+```c
+void *showmatriks1(void *arg)
+{
+    int i,j,k;
+    printf("Matriks 1 %dx%d:\n", R, RC);
+	for(i=0; i < R; i++){
+		for(j=0; j < RC; j++)
+			printf("%d ",matriks1[i][j] );
+		printf("\n");
+	}
+	return NULL;
+}
+
+void *showmatriks2(void *arg)
+{
+    int i,j,k;
+    printf("\nMatriks 2 %dx%d:\n", RC, C);
+	for(i=0; i < RC; i++){
+		for(j=0; j < C; j++)
+			printf("%d ",matriks2[i][j] );
+		printf("\n");
+	}
+	return NULL;
+}
+
+void *perkalian(void *arg)
+{
+	for(int i=0;i<R;i++)
+	{
+		for(int j=0;j<C;j++)
+		{
+			for(int k=0;k<RC;k++)
+			{
+				res += matriks1[i][k] * matriks2[k][j];
+			}
+            nilai[i][j] = res; 
+            res =0;
+		}
+	}
+	return NULL;
+}
+```
+
 - Thread tersebut berjalan pada setiap perulangan sesuai dengan ukuran Matriksnya.
 - Shared memory digunakan karena Matriks hasil perkalian tersebut akan digunakan pada soal berikutnya.
 
 ```c
-```
+pthread_create(&thread1, NULL, showmatriks1, NULL);
+pthread_join(thread1,NULL);
 
+pthread_create(&thread2, NULL, showmatriks2, NULL);
+pthread_join(thread2,NULL);
+
+printf("\n");
+
+for(int i=0;i<R;i++){
+	for(int j=0;j<C;j++){
+		nilai[i][j] = 0;
+	}
+	pthread_create(&thread3, NULL, perkalian, NULL);
+	pthread_join(thread3,NULL);
+}
+```
 Output:
+
+![soal2a](https://user-images.githubusercontent.com/73766214/119256494-340e6780-bbeb-11eb-9ce7-cfbca0734a7d.png)
 
 ##### B. Membuat program dengan menggunakan Matriks Output dari program sebelumnya (Shared Memory). Kemudian Matriks tersebut dilakukan perhitungan dengan Matriks baru dari inputan user. Perhitungannya adalah setiap cel yang berasal dari matriks A menjadi angka untuk faktorial, lalu cel dari matriks B menjadi batas maksimal faktorialnya matriks dengan menggunakan Thread untuk perhitungan setiap cell nya (dari paling besar ke paling kecil). 
 - Menggunakan Shared Memory untuk memakai Matriks hasil perkalian dari soal sebelumnya.
 - User melakukan penginputan Matriks yang nantinya akan diproses dengan Matriks pada soal sebelumnya.
 - Menggunakan Thread sebanyak ukuran Matriksnya (4x6) untuk perhitungan di setiap cell nya, dengan variabel ```zero``` untuk penanda apakah elemen di suatu matriks adalah 0. Menghitung selisih dari Matriks a (Matriks hasil perkalian soal sebelumnya) dan Matriks b (input user), lalu mengeksekusi Thread yang memanggil fungsi ```finalmatriks``` sesuai dengan kondisi pada soal :
 
+```c
+pthread_t thread_id[R*C];
+int cnt=0;
+for(int i = 0; i < R; i++){
+    for(int j = 0; j < C; j++){
+      	zero=0;
+        ll *val = malloc(sizeof(ll[4][6]));
+
+        *val = value[i][j];
+        beda = value[i][j] - nilaibaru[i][j];
+
+        if(value[i][j]==0 || nilaibaru[i][j]==0) zero=1;
+
+        pthread_create(&thread_id[cnt], NULL, &finalmatriks, val);
+        sleep(1);
+        cnt++;
+    }
+    printf("\n");
+}
+for (int i = 0; i<cnt; i++){
+	pthread_join(thread_id[i], NULL);
+}
+```
+
+```c
+void *finalmatriks(void* argv){
+	ll n = *(ll*)argv;
+	if(zero){
+		printf("0 ");
+	}
+	else if(beda<1){
+		printf("%lld ", factorial(n));
+	} 
+	else printf("%lld ", factorial2(n));
+}
+```
+
 - Fungsi ```factorial``` untuk menghitung hasil faktorial yang memenuhi kondisi kedua (b > a -> a!).
+
+```c
+ll factorial(int n) {
+    if (n == 0) return 1;
+    return n*factorial(n-1);
+}
+```
 
 - Fungsi ```factorial2``` untuk menghitung hasil faktorial yang memenuhi kondisi pertama (a >= b -> a!/(a-b)!)
 
-
 ```c
+ll factorial2(int n){
+	if (n == beda) return 1;
+        return n*factorial2(n-1);
+}
 ```
 
 Output:
+
+![soal2b](https://user-images.githubusercontent.com/73766214/119256526-4b4d5500-bbeb-11eb-8a68-bd3dd7ab9f61.png)
 
 ##### C. Membuat program untuk mengecek 5 proses teratas yang memakan resource komputer.
 - Menggunakan IPC Pipes untuk mengeksekusi perintah ```ps aux | sort -nrk 3,3 | head -5```.
 - Menggunakan 2 Pipes. Dilakukan fork pada ```pid_t p1```. Write end pada Pipe1 akan dijalankan untuk mengeksekusi perintah ```ps aux``` pada child p1.
+
+```c
+//child p1
+else{ //p1 == 0
+	dup2(pipe1[1], 1);
+
+	close(pipe1[0]);
+        close(pipe1[1]);
+
+        char *arg2[] = {"ps", "aux",NULL};
+        execvp("/bin/ps", arg2);
+} 
+```
+
 - Pada parent p1, dilakukan fork pada ```pid_t p2```, Read end pada Pipe1 dan Write end pada Pipe2 dijalankan untuk mengeksekusi perintah ```sort -nrk 3,3``` pada child p2.
+
+```c
+	else{ //child p2
+            //Read isi dari Pipe1
+            dup2(pipe1[0], 0); 
+            //Write ke Pipe 2
+            dup2(pipe2[1], 1);
+
+            close(pipe1[0]);
+            close(pipe1[1]);
+            close(pipe2[0]);
+            close(pipe2[1]);
+
+            char *arg2[] = {"sort", "-nrk", "3.3",NULL};
+            execvp("/bin/sort", arg2);
+    	}
+```
+
 - Read end pada Pipe2 dijalankan untuk mengeksekusi perintah ```head -5``` pada parent p2.
 
 ```c
+	else if(p2 > 0){//parent p2
+            close(pipe1[0]);
+            close(pipe1[1]);
+
+            dup2(pipe2[0], 0);
+        
+            close(pipe2[0]);
+            close(pipe2[1]);
+
+            char *arg1[] = {"head", "-5", NULL};
+            execvp("/usr/bin/head", arg1);
+            exit(0);
+        }
 ```
 
 Output:
 
-#### Kendala
+![soal2c](https://user-images.githubusercontent.com/73766214/119256553-67e98d00-bbeb-11eb-9b11-448ac391f254.png)
 
+#### Kendala
+- Agak kesulitan untuk menghitung setiap cell menggunakan thread
+- Sedikit bingung mengenai penggunaan IPC Pipes
 
 ## Soal 3
 
@@ -863,6 +1015,9 @@ void categorize(char* filePath,char* curPath)
     }
 }
 ```
+Output:
+
+![soal3a](https://user-images.githubusercontent.com/73766214/119256595-a3845700-bbeb-11eb-960e-7490c9e391bc.png)
 
 ##### B. Program dapat menerima opsi ```-d``` untuk melakukan pengkategorian pada suatu directory. User hanya bisa memasukkan input 1 directory saja, tidak seperti file yang bebas menginput file sebanyak mungkin.
 - Sebenarnya tidak jauh beda dengan soal nomor 3a, hanya saja user dapat mengkategorikan file pada directory yang user inginkan.
@@ -874,7 +1029,9 @@ else if (strcmp(argv[1],"-d") == 0)
         listFilesRecursively(argv[2]);
     }
 ```
+Output:
 
+![soal3b](https://user-images.githubusercontent.com/73766214/119256609-b4cd6380-bbeb-11eb-92b3-916c27692402.png)
 
 ##### C. Program menerima opsi ```*```. Opsi ini akan mengkategorikan seluruh file yang ada di working directory ketika menjalankan program C tersebut.
 - Sebenarnya tidak jauh beda dengan soal nomor 3a, hanya saja pengkategorian file dilakukan pada working directory, yaitu folder soal3 itu sendiri.
@@ -891,3 +1048,4 @@ else if (strcmp(argv[1],"-*") == 0)
 ##### E. Setiap 1 file yang dikategorikan dioperasikan oleh 1 thread agar bisa berjalan secara paralel sehingga proses kategori bisa berjalan lebih cepat.
 
 #### Kendala
+- Sedikit bingung penggunaan rekursif pada program
