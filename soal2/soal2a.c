@@ -12,8 +12,9 @@
 int (*nilai)[10];
 int res = 0;
 pthread_t thread1, thread2, thread3;
-int matriks1[R][RC] = { {1,2,3}, {2,3,4}, {3,2,1}, {2,1,3}};
-int matriks2[RC][C] = { {1,2,1,2,1,2}, {2,1,2,1,2,1}, {3,2,3,2,3,2}};
+int matriks1[R][RC]; //= { {1,2,3}, {2,3,4}, {3,2,1}, {2,1,3}};
+int matriks2[RC][C]; //= { {1,2,1,2,1,2}, {2,1,2,1,2,1}, {3,2,3,2,3,2}};
+
 
 void *showmatriks1(void *arg)
 {
@@ -63,6 +64,21 @@ int main()
     int shmid = shmget(key, sizeof(int[10][10]), IPC_CREAT | 0666);
     nilai = shmat(shmid, 0, 0);
 
+	
+	printf("Input matriks 1 (4x3): \n");
+    for(int x=0;x<R;x++){
+		for(int y=0;y<RC;y++){
+			scanf("%d", &matriks1[x][y]);
+		}
+	}
+
+	printf("Input matriks 2 (3x6): \n");
+    for(int x=0;x<RC;x++){
+		for(int y=0;y<C;y++){
+			scanf("%d", &matriks2[x][y]);
+		}
+	}
+	
 	pthread_create(&thread1, NULL, showmatriks1, NULL);
 	pthread_join(thread1,NULL);
 
@@ -79,7 +95,7 @@ int main()
 		pthread_join(thread3,NULL);
 	}
 
-	printf("Hasil Perkalian antara matriks A dan B adalah: \n");
+	printf("Hasil Perkalian antara matriks 1 dan 2 adalah: \n");
 	for(int i=0; i<R; i++){
 		for(int j=0;j<C;j++){
 			printf("%d ", nilai[i][j]);
